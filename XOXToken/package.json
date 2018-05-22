@@ -1,0 +1,38 @@
+{
+  "name": "XOXTokens",
+  "version": "2.0.0",
+  "description": "XOX Token",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "babel-register": "^6.26.0",
+    "ethereumjs-util": "^5.1.5",
+    "ethjs-abi": "^0.2.1",
+    "web3": "^0.20.6"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.3",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react-native": "^4.0.0",
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "chai-bignumber": "^2.0.2",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-babel": "^5.1.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "Pobegaylo Maksim",
+  "license": "ISC"
+}
