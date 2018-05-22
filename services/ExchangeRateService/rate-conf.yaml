@@ -1,0 +1,30 @@
+# This is example configuration file for ExchangeRateService
+
+# Infura service connection token
+infura_token: SyocvYjklLg7ZkXEJJNy
+
+# Ethereum network id
+# 1 - MAIN net
+# 2 - ROPSTEN net
+# 3 - RINKEBY net
+# 4 - KOVAN net
+# 5 - INFURANET net
+network_id: 2
+
+# WindToken crowdsale contract address in the network, specified by network_id
+contract_address: 0x6363848ef3055f1849b55176b65593f35f9fe1d3
+
+# Account private key for signing TXs in network, specified by network_id
+private_key: 82721fa0a1219f8228f925c171806d2270d4a8424235c4122978acd8f59dbac9
+
+# How many minutes service should wait between updates of exchange rate
+update_rate: 60
+
+# Fiat currency symbol for ETH exchange rate
+fiat_symbol: USD
+
+# Number of retries for exchange API requests
+retries: 3
+
+# Block gas limit in the network, specified by network_id
+gas_limit: 4700000

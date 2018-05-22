@@ -1,0 +1,10 @@
+[crypto]
+    ownerPrivateKey = "82721fa0a1219f8228f925c171806d2270d4a8424235c4122978acd8f59dbac9"
+
+[database]
+    [database.prod]
+        host = "127.0.0.1"
+        port = 5432
+        name = "prodDB"
+        user = "prodUSER"
+        password = "prodPassword"

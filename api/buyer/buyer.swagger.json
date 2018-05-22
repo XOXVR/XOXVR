@@ -1,0 +1,68 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/buyer/buyer.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/getBTCWallet": {
+      "post": {
+        "summary": "Get BTC wallet by ETH wallet",
+        "operationId": "GetBTCWallet",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/authGetBTCWalletResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/authGetBTCWalletReq"
+            }
+          }
+        ],
+        "tags": [
+          "Auth"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "authGetBTCWalletReq": {
+      "type": "object",
+      "properties": {
+        "ethAddress": {
+          "type": "string"
+        },
+        "btcAddress": {
+          "type": "string"
+        }
+      },
+      "title": "GetBTCWallet"
+    },
+    "authGetBTCWalletResp": {
+      "type": "object",
+      "properties": {
+        "btcAddress": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

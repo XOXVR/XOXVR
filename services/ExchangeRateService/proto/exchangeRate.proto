@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package auth;
+
+//import "google/api/annotations.proto";
+
+message GetRateReq {
+    string BaseCurrency = 1;
+//    string ReceivedCurrency = 2;
+}
+
+message GetRateResp {
+    string CurrencyRatio = 1;
+}
+
+service Currency {
+    rpc GetRate(GetRateReq) returns (GetRateResp) {
+/*
+        option (google.api.http) = {
+            post: "/v1/getRate"
+            body: "*"
+        };
+*/
+    }
+}

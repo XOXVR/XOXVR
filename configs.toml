@@ -1,0 +1,39 @@
+[common]
+    logOutPath = "./out/out.log"
+
+[server]
+    gRPCPort = 9092
+    restPort = 9091
+
+[crypto]
+    # BTC
+    btcAddress = "n2mspPYhrcYAQAmy3Ud2fGCUynqJMUAKGD" # Wallet address. # TODO: Update address
+    btcTestnet = true
+
+    # ETH
+    # Ethereum network id
+      # 1 - MAIN net
+      # 2 - ROPSTEN net
+      # 3 - RINKEBY net
+      # 4 - KOVAN net
+      # 5 - INFURANET net
+    ethNetworkId = 3
+    infuraToken = "SyocvYjklLg7ZkXEJJNy"
+
+    # Contract
+    crowdsaleAddress = "0x6363848ef3055f1849b55176b65593f35f9fe1d3"
+    ownerAddress = "0xf8A076AB1bae73686EeCF740C679b726aa5999fc" # Important! Must be associated with ownerPrivateKey.
+    gasPrice = 3000000000 # Wei.
+    gasLimit = 7000000
+
+[services]
+    ethServicePort = 9090
+    btcServicePort = 8082
+
+[database]
+    [database.dev]
+        host = "127.0.0.1"
+        port = 5432
+        name = "testuser"
+        user = "testuser"
+        password = "password"
