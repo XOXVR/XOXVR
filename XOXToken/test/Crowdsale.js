@@ -20,14 +20,14 @@ const Token = artifacts.require('./XOXToken.sol');
 const ZERO_ADDRESS = '0x00000000000000000000000000000000';
 
 const Stage = {
-  totalSupply: 0,
-  remainderTokens: 1,
+  id: 0,
+  totalSupply: 1,
+  remainderTokens: 2,
+  minInvestment: 3,
   end: 5,
-  start: 9,
-  minInvestment: 2,
   bonusLessTen: 6,
   bonusMoreTen: 7,
-  id: 8
+  start: 8,
 };
 
 contract('Crowdsale', function ([owner, ...accounts]) {
@@ -39,9 +39,9 @@ contract('Crowdsale', function ([owner, ...accounts]) {
 
   beforeEach(async function () {
     this.startPreICO = latestTime() + duration.weeks(1);
-    this.endPreICO = this.startPreICO + duration.days(24);
+    this.endPreICO = this.startPreICO + duration.days(28);
     this.startICO = this.endPreICO + duration.seconds(1);
-    this.endICO = this.startICO + duration.days(24);
+    this.endICO = this.startICO + duration.days(28);
     this.startPostICO = this.endICO + duration.seconds(1);
 
     /* constructor(uint _startPreICO, uint _startICO, uint _startPostICO, address _reserved) */
@@ -63,35 +63,10 @@ contract('Crowdsale', function ([owner, ...accounts]) {
       const numberInvestors = await this.crowdsale.returnNumberInvestors();
       numberInvestors.should.be.bignumber.equal(1);
       const balance = web3.eth.getBalance(this.crowdsale.address);
-      (balance.toNumber() / 1E18).should.be.bignumber.equal(5);
-      let balanceCrowd = await this.token.balanceOf(this.crowdsale.address);
-      balanceCrowd = balanceCrowd.toNumber();
-      const newVar = balanceCrowd / 1E18;
-      newVar.toFixed().should.be.bignumber.equal(899963477);
+      balance.should.be.bignumber.equal(ether(5));
+      const balanceCrowd = await this.token.balanceOf(this.crowdsale.address);
+      balanceCrowd.div(1E18).toNumber().toFixed(6).should.be.bignumber.equal(899948867.786706);
     });
-
-    // it('PreICO Stage (buy all tokens)', async function () {
-    //   await increaseTimeTo(this.startPreICO);
-    //   const rate = await this.crowdsale.rate();
-    //   let preICO = await this.crowdsale.preICO();
-    //   const totalSupply = preICO[Stage.totalSupply];
-    //   const expectedWei = totalSupply.div(1E18).times(rate);
-    //   await this.crowdsale.saleTokens({ from: accounts[0], value: expectedWei });
-    //   preICO = await this.crowdsale.preICO();
-    //   preICO[Stage.remainderTokens].should.be.bignumber.equal(0);
-    //   const investments = await this.crowdsale.investments(accounts[0]);
-    //   investments.should.be.bignumber.equal(expectedWei);
-    // });
-
-    // it('PreICO buying all tokens, then ICO Stage (bet in ICO equally 0.4 eth)', async function () {
-    //   await increaseTimeTo(this.startPreICO);
-    //   const preICO = await this.crowdsale.preICO[Stage.remainderTokens];
-    //   await this.crowdsale.saleTokens({ from: accounts[0], value: ether(10) });
-    //   await this.crowdsale.saleTokens({ from: accounts[0], value: ether(9) });
-    //   preICO.should.be.bignumber.equal(0);
-    //   await increaseTimeTo(this.startICO);
-    //   await this.crowdsale.saleTokens({ from: accounts[0], value: ether(0.4) }).should.be.rejected;
-    // });
 
     it('PreICO Stage (bet less than 1 eth)', async function () {
       await increaseTimeTo(this.startPreICO);
@@ -107,6 +82,7 @@ contract('Crowdsale', function ([owner, ...accounts]) {
       preICO[Stage.bonusMoreTen].should.be.bignumber.equal(160);
       preICO[Stage.start].should.be.bignumber.equal(this.startPreICO);
       preICO[Stage.end].should.be.bignumber.equal(this.endPreICO);
+      preICO[Stage.id].should.be.bignumber.equal(0);
     });
 
     it('ICO stage', async function () {
@@ -117,100 +93,65 @@ contract('Crowdsale', function ([owner, ...accounts]) {
       ICO[Stage.bonusMoreTen].should.be.bignumber.equal(140);
       ICO[Stage.start].should.be.bignumber.equal(this.startICO);
       ICO[Stage.end].should.be.bignumber.equal(this.endICO);
+      ICO[Stage.id].should.be.bignumber.equal(1);
     });
 
     it('postICO stage', async function () {
       const postICO = await this.crowdsale.postICO();
       postICO[Stage.remainderTokens].should.be.bignumber.equal(ether(840E6));
       postICO[Stage.start].should.be.bignumber.equal(this.startPostICO);
+      postICO[Stage.id].should.be.bignumber.equal(2);
     });
 
     it('value tokens for 10 eth', async function () {
       await increaseTimeTo(this.startPreICO);
       await this.crowdsale.saleTokens({ from: accounts[0], value: ether(10) });
-      let balanceBuyer = await this.token.balanceOf(accounts[0]);
-      balanceBuyer = balanceBuyer.toNumber();
-      const newVar = balanceBuyer / 1E18;
-      newVar.toFixed().should.be.bignumber.equal(73046);
-    });
-
-    it('update stage', async function () {
-      const preICO = await this.crowdsale.preICO();
-      const ICO = await this.crowdsale.ICO();
-      const postICO = await this.crowdsale.postICO();
-      const idPreICO = preICO[Stage.id];
-      const idICO = ICO[Stage.id];
-      const idPostICO = postICO[Stage.id];
-      await increaseTimeTo(this.startPreICO);
-      idPreICO.should.be.bignumber.equal(0);
-      await increaseTimeTo(this.startICO);
-      idICO.should.be.bignumber.equal(1);
-      await increaseTimeTo(this.startPostICO);
-      idPostICO.should.be.bignumber.equal(2);
+      const balanceBuyer = await this.token.balanceOf(accounts[0]);
+      balanceBuyer.div(1E18).toFixed(9).should.be.bignumber.equal(116873.630387143);
     });
 
     it('multisig', async function () {
       await this.crowdsale.setMultisig(ZERO_ADDRESS).should.be.rejected;
-      await this.crowdsale.setMultisig(accounts[0]).should.be.fulfilled;
+      await this.crowdsale.setMultisig(accounts[5]);
+      const multisig = await this.crowdsale.multisig();
+      multisig.should.be.equal(accounts[5]);
     });
 
     it('backend', async function () {
-      const postICO = await this.crowdsale.postICO();
-      const remainderTokensBefore = postICO[Stage.remainderTokens];
       await increaseTimeTo(this.startPostICO);
-      let balanceBuyerBefore = await this.token.balanceOf(accounts[0]);
-      balanceBuyerBefore = balanceBuyerBefore.toNumber();
-      const tokensBefore = balanceBuyerBefore / 1E18;
-      await this.crowdsale.getEthForBackend(ether(10), accounts[0]);
-      let balanceBuyer = await this.token.balanceOf(accounts[0]);
-      balanceBuyer = balanceBuyer.toNumber();
-      const tokensAfter = balanceBuyer / 1E18;
-      tokensBefore.should.be.bignumber.equal(0);
-      tokensAfter.toFixed().should.be.bignumber.equal(73046);
-
-      const postI = await this.crowdsale.postICO();
-      const remainderTokensAfter = postI[Stage.remainderTokens];
-      const tokensAvailable = (remainderTokensAfter.toNumber() / 1E18).toFixed();
-      const tokensSold = tokensAfter.toFixed();
-      (+tokensAvailable + +tokensSold).should.be.bignumber.equal(840000000);
+      await this.crowdsale.getValueForBackend(ether(10), accounts[0]);
+      const balanceBuyer = await this.token.balanceOf(accounts[0]);
+      balanceBuyer.div(1E18).toFixed(10).should.be.bignumber.equal(73046.0189919649);
+      const postICO = await this.crowdsale.postICO();
+      const remainderTokensAfter = postICO[Stage.remainderTokens];
+      const totalSold = balanceBuyer.div(1E18);
+      const availableTokens = remainderTokensAfter.div(1E18);
+      totalSold.add(availableTokens).toFixed(10).should.be.bignumber.equal(839999999.9999999999);
     });
 
     it('withDrawal', async function () {
       const multisig = await this.crowdsale.multisig();
-      const balanceBefore = web3.eth.getBalance(multisig);
       await increaseTimeTo(this.startPreICO);
       await this.crowdsale.saleTokens({ from: accounts[0], value: ether(50) });
+      const balanceLessSoftCap = web3.eth.getBalance(multisig);
+      balanceLessSoftCap.div(1E18).toNumber().toFixed().should.be.bignumber.equal(97);
+
       await this.crowdsale.saleTokens({ from: accounts[1], value: ether(50) });
       await this.crowdsale.saleTokens({ from: accounts[2], value: ether(50) });
       await this.crowdsale.saleTokens({ from: accounts[3], value: ether(50) });
 
       const balanceAfter = web3.eth.getBalance(multisig);
-      const saleTokens = await this.crowdsale.salesTokens();
-      const salesTokens = (saleTokens.toNumber() / 1E18).toFixed();
-
-      const ethBalanceBefore = (balanceBefore.toNumber() / 1E18).toFixed();
-      const ethBalanceAfter = (balanceAfter.toNumber() / 1E18).toFixed();
-
-      ethBalanceBefore.should.be.bignumber.equal(97);
-      ethBalanceAfter.should.be.bignumber.equal(297);
-      salesTokens.should.be.bignumber.equal(1460920);
+      const salesTokens = await this.crowdsale.salesTokens();
+      balanceAfter.div(1E18).toNumber().toFixed().should.be.bignumber.equal(297);
+      salesTokens.div(1E18).toFixed(5).should.be.bignumber.equal(2337472.60774);
 
       await increaseTimeTo(this.startICO);
 
       await this.crowdsale.saleTokens({ from: accounts[4], value: ether(50) });
       await this.crowdsale.saleTokens({ from: accounts[5], value: ether(50) });
-      await this.crowdsale.saleTokens({ from: accounts[6], value: ether(50) });
-      await this.crowdsale.saleTokens({ from: accounts[7], value: ether(50) });
-
       const balanceAfterTwo = web3.eth.getBalance(multisig);
-      const ethBalanceAfterTwo = (balanceAfterTwo.toNumber() / 1E18).toFixed();
 
-      ethBalanceAfterTwo.should.be.bignumber.equal(497);
-
-      let balanceBuyerTwo = await this.token.balanceOf(accounts[5]);
-      balanceBuyerTwo = balanceBuyerTwo.toNumber();
-      const tokensBalanceTwoBuyer = (balanceBuyerTwo / 1E18).toFixed();
-      tokensBalanceTwoBuyer.should.be.bignumber.equal(365230);
+      balanceAfterTwo.div(1E18).toNumber().toFixed().should.be.bignumber.equal(397);
     });
 
     it('buy tokens from different accounts', async function () {
@@ -218,22 +159,56 @@ contract('Crowdsale', function ([owner, ...accounts]) {
       await this.crowdsale.saleTokens({ from: accounts[0], value: ether(10) });
       await this.crowdsale.saleTokens({ from: accounts[1], value: ether(10) });
       const balance = web3.eth.getBalance(this.crowdsale.address);
-      (balance.toNumber() / 1E18).should.be.bignumber.equal(20);
+      balance.should.be.bignumber.equal(ether(20));
 
-      let balanceBuyerOne = await this.token.balanceOf(accounts[0]);
-      balanceBuyerOne = balanceBuyerOne.toNumber();
-      const tokensBalanceOneBuyer = (balanceBuyerOne / 1E18).toFixed();
-      tokensBalanceOneBuyer.should.be.bignumber.equal(73046);
+      const balanceBuyerOne = await this.token.balanceOf(accounts[0]);
+      balanceBuyerOne.div(1E18).toFixed(9).should.be.bignumber.equal(116873.630387143);
 
-      let balanceBuyerTwo = await this.token.balanceOf(accounts[1]);
-      balanceBuyerTwo = balanceBuyerTwo.toNumber();
-      const tokensBalanceTwoBuyer = (balanceBuyerTwo / 1E18).toFixed();
-      tokensBalanceTwoBuyer.should.be.bignumber.equal(73046);
+      const balanceBuyerTwo = await this.token.balanceOf(accounts[1]);
+      balanceBuyerTwo.div(1E18).toFixed(9).should.be.bignumber.equal(116873.630387143);
     });
 
-    // it('refund', async function () {
-    //   await increaseTimeTo(this.startPostICO);
-      
-    // });
+    it('refund', async function () {
+      await increaseTimeTo(this.startICO);
+      await this.crowdsale.saleTokens({ from: accounts[8], value: ether(10) });
+      await this.crowdsale.saleTokens({ from: accounts[0], value: ether(2) });
+      await increaseTimeTo(this.startPostICO);
+      await this.crowdsale.refund();
+      const balanceBuyerOne = web3.eth.getBalance(accounts[8]);
+      balanceBuyerOne.div(1E18).toNumber().toFixed().should.be.bignumber.equal(100);
+
+      const balanceBuyerTwo = web3.eth.getBalance(accounts[0]);
+      balanceBuyerTwo.div(1E18).toNumber().toFixed().should.be.bignumber.equal(5);
+    });
+
+    it('burn', async function () {
+      await increaseTimeTo(this.startPostICO);
+      await this.crowdsale.burnTokens();
+      const balance = await this.token.balanceOf(this.crowdsale.address);
+      balance.should.be.bignumber.equal(840E24);
+    });
+
+    it('bonus programm', async function () {
+      await increaseTimeTo(this.startPreICO);
+      await this.crowdsale.saleTokens({ from: accounts[8], value: ether(5) });
+      let balanceBuyerOne5ETH = await this.token.balanceOf(accounts[8]);
+      balanceBuyerOne5ETH = balanceBuyerOne5ETH.div(1E18).toFixed(10);
+      balanceBuyerOne5ETH.should.be.bignumber.equal(51132.2132943754);
+      await this.crowdsale.saleTokens({ from: accounts[8], value: ether(10) });
+      let balanceSum = await this.token.balanceOf(accounts[8]);
+      balanceSum = balanceSum.div(1E18).toFixed(9);
+      balanceSum.should.be.bignumber.equal(168005.843681519);
+      const preICO = await this.crowdsale.preICO();
+      preICO[Stage.remainderTokens].div(1E18).toNumber().toFixed(4).should.be.bignumber.equal(5831994.1563);
+      await increaseTimeTo(this.startICO);
+      await this.crowdsale.saleTokens({ from: accounts[6], value: ether(5) });
+      const balanceBuyerTwo5ETH = await this.token.balanceOf(accounts[6]);
+      balanceBuyerTwo5ETH.div(1E18).toFixed(9).should.be.bignumber.equal(36523.009495982);
+      await this.crowdsale.saleTokens({ from: accounts[6], value: ether(10) });
+      const balanceSum2 = await this.token.balanceOf(accounts[6]);
+      balanceSum2.div(1E18).toFixed(9).should.be.bignumber.equal(138787.436084733);
+      const ICO = await this.crowdsale.ICO();
+      ICO[Stage.remainderTokens].div(1E18).toNumber().toFixed(4).should.be.bignumber.equal(53861212.5639);
+    });
   });
 });

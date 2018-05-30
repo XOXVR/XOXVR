@@ -21,27 +21,27 @@ contract Crowdsale is Ownable {
 
   address[] public investors;
   address public multisig;
+  address public proxyMultisig;
 
   mapping(address => uint) public investments;
   
   XOXToken public token;
 
   struct Stage {
+    uint id;
     uint totalSupply;
     uint remainderTokens;
     uint minInvestment;
     uint sumInvestment;
-    uint duration;
     uint end;
     uint bonusLessTen;
     uint bonusMoreTen;
-    uint id;
     uint start;
   }
 
-  Stage public preICO;
-  Stage public ICO;
-  Stage public postICO;
+    Stage public preICO;
+    Stage public ICO;
+    Stage public postICO;
 
 
   event TransferWei(address indexed addr, uint amount);
@@ -49,56 +49,56 @@ contract Crowdsale is Ownable {
   constructor(uint _startPreICO, uint _startICO, uint _startPostICO, address _reserved) public {
     require(
       _startPreICO > now &&
-      _startICO > _startPreICO.add(24 days) &&
-      _startPostICO > _startICO.add(24 days)
+      _startICO > _startPreICO.add(28 days) &&
+      _startPostICO > _startICO.add(28 days)
     );
     require(requireOnce);
 
     requireOnce = false;
     multisig = owner;
     token = new XOXToken(_reserved);
-    salesTokens = 0;
-    countRefund = 0;
     start = _startPreICO;
 
     preICO = Stage({
+      id: 0,
       totalSupply: 6E24,
       remainderTokens: 6E24,
       minInvestment: 1 ether,
       sumInvestment: 0,
-      duration: 24 days,
-      end: start.add(24 days),
+      end: start.add(28 days),
       bonusLessTen: 140,
       bonusMoreTen: 160,
-      id: 0,
       start: _startPreICO
     });
 
     ICO = Stage({
+      id: 1,
       totalSupply: 54E24,
       remainderTokens: 54E24,
       minInvestment: 0.5 ether,
       sumInvestment: 0,
-      duration: 24 days,
-      end: _startICO.add(24 days),
+      end: _startICO.add(28 days),
       bonusLessTen: 0,
       bonusMoreTen: 140,
-      id: 1,
       start: _startICO
     });
 
     postICO = Stage({
+      id: 2,
       totalSupply: 840E24,
       remainderTokens: 840E24,
       minInvestment: 0,
       sumInvestment: 0,
-      duration: 0,
       end: 0,
       bonusLessTen: 0,
       bonusMoreTen: 0,
-      id: 2,
       start: _startPostICO
     });
+  }
+
+  modifier onlyOwnerAndProxyOwner() {
+    require(msg.sender == owner || msg.sender == proxyMultisig);
+    _;
   }
   
   
@@ -111,67 +111,85 @@ contract Crowdsale is Ownable {
     Stage storage stageICO = getStage();
     require(stageICO.id != 2);
     require(msg.value >= stageICO.minInvestment);
-    
-    uint ethVal = msg.value;
-    address sender = msg.sender;
-    uint tokensValue = calculateTokens(ethVal);
+   
+    uint tokensValue = calculateTokens(msg.value);
     
     if (tokensValue <= stageICO.remainderTokens) {
-      stageICO.remainderTokens = stageICO.remainderTokens.sub(tokensValue);
-
-      addStatisticsAndCalculateVal(tokensValue, ethVal, sender);
+      uint tokens = bonusSystem(msg.value, stageICO, tokensValue);
+      stageICO.remainderTokens = stageICO.remainderTokens.sub(tokens);
+      addStatisticsAndCalculateVal(tokens, msg.value, msg.sender);
     } else {
-        calculateTokensLessAvailable(stageICO, ethVal, sender);
+        calculateTokensLessAvailable(stageICO, msg.value, msg.sender);
     }
     withDrawal();
   }
 
 
-  function getEthForBackend(uint _eth, address _sender) public onlyOwner {
-    require(_eth > 0);
+  function bonusSystem(uint _eth, Stage storage _stageNow, uint _tokens) internal view returns(uint) {
+    uint eth = _eth.div(1E18);
+    uint tokens = _tokens;
+    Stage storage stage = _stageNow;
+    if (stage.id == 0) {
+        if (eth < 10) {
+          tokens = tokens.mul(stage.bonusLessTen).div(100);
+        } else if (eth >= 10) {
+          tokens = tokens.mul(stage.bonusMoreTen).div(100);
+        }
+    } else {
+       if (eth < 10) {
+          tokens = tokens;
+       } else if (eth >= 10) {
+          tokens = tokens.mul(stage.bonusMoreTen).div(100);
+       }
+    }
+    return tokens;
+  }
+
+
+  function getValueForBackend(uint _btc, address _sender) public onlyOwnerAndProxyOwner returns(uint) {
+    require(_btc > 0);
     require(_sender != address(0));
+    require(now > ICO.end);
     
-    uint ethVal = _eth;
-    address sender = _sender;
-    uint tokensValue = calculateTokens(ethVal);
-    
+    uint tokensValue = calculateTokens(_btc);
+    uint surrender;
     if (tokensValue <= postICO.remainderTokens) {
       postICO.remainderTokens = postICO.remainderTokens.sub(tokensValue);
-
-      addStatisticsAndCalculateVal(tokensValue, ethVal, sender);
+      surrender = 0;
     } else {
-        calculateTokensLessAvailable(postICO, ethVal, sender);
+        tokensValue = postICO.remainderTokens;
+        postICO.remainderTokens = 0;
+        uint availableWei = tokensValue.mul(rate).div(DECIMALS);
+        uint remainderWei = _btc.sub(availableWei);
+        surrender = remainderWei;
     }
-    withDrawal();
+    token.transfer(_sender, tokensValue);
+    return surrender;
   }
-  
-  
+
+
   function calculateTokensLessAvailable(Stage storage _stageNow, uint _ethValue, address _sender) internal {
       Stage storage stage = _stageNow;
-      uint ethVal = _ethValue;
-      address sender = _sender;
       uint tokensValue = stage.remainderTokens;
       stage.remainderTokens = 0;
-      uint availableWei = tokensValue.mul(rate).div(DECIMALS);
-      uint remainderWei = ethVal.sub(availableWei);
-
-      addStatisticsAndCalculateVal(tokensValue, availableWei, sender);
+      uint tokens = bonusSystem(msg.value, stage, tokensValue);
+      uint availableWei = tokens.mul(rate).div(DECIMALS);
+      uint remainderWei = _ethValue.sub(availableWei);
+    
+      addStatisticsAndCalculateVal(tokens, availableWei, _sender);
 
       if (remainderWei > 0) {
-        emit TransferWei(sender, remainderWei);
-        sender.transfer(remainderWei);
+        emit TransferWei(_sender, remainderWei);
+        _sender.transfer(remainderWei);
       }
   }
 
+
   function addStatisticsAndCalculateVal(uint _tokensVal, uint _ethVal, address _sender) internal {
-    uint ethVal = _ethVal;
-    uint tokensVal = _tokensVal;
-    address sender = _sender;
-    
-    if (investments[sender] == 0) investors.push(sender);
-      investments[sender] = investments[sender].add(ethVal);
-      salesTokens = salesTokens.add(tokensVal);
-      token.transfer(sender, tokensVal);
+    if (investments[_sender] == 0) investors.push(_sender);
+      investments[_sender] = investments[_sender].add(_ethVal);
+      salesTokens = salesTokens.add(_tokensVal);
+      token.transfer(_sender, _tokensVal);
   }
 
 
@@ -194,6 +212,12 @@ contract Crowdsale is Ownable {
     }
   }
 
+  function burnTokens() public onlyOwnerAndProxyOwner {
+    require(ICO.end < now);
+    uint remainderTokens = preICO.remainderTokens.add(ICO.remainderTokens);
+    token.burn(this, remainderTokens);
+  }
+
 
   function calculateTokens(uint _ether) public view returns(uint) {
     return _ether.mul(DECIMALS).div(rate);
@@ -210,7 +234,7 @@ contract Crowdsale is Ownable {
   }
     
 
-  function refund() public onlyOwner {
+  function refund() public onlyOwnerAndProxyOwner {
     require(ICO.end < now && salesTokens < SOFT_CAP);
     uint limit = countRefund.add(paginationNum);
 
@@ -233,6 +257,24 @@ contract Crowdsale is Ownable {
   function setMultisig(address _to) public onlyOwner returns(bool) {
     require(_to != address(0));
     multisig = _to;
+    return true;
+  }
+
+  function setDate(uint _startPreICO, uint _startICO, uint _startPostICO) public onlyOwner {
+    require(now < start);
+    require(
+      _startPreICO > now &&
+      _startICO > _startPreICO.add(28 days) &&
+      _startPostICO > _startICO.add(28 days)
+    );
+    preICO.start = _startPreICO;
+    ICO.start = _startICO;
+    postICO.start = _startPostICO;
+  }
+
+  function setProxyMultisig(address _to) public onlyOwner returns(bool) {
+    require(_to != address(0));
+    proxyMultisig = _to;
     return true;
   }
     
