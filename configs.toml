@@ -21,7 +21,7 @@
     infuraToken = "SyocvYjklLg7ZkXEJJNy"
 
     # Contract
-    crowdsaleAddress = "0x6363848ef3055f1849b55176b65593f35f9fe1d3"
+    crowdsaleAddress = "0x98bdb1427b7eb45d5d09faa706df27dd33dc806a"
     ownerAddress = "0xf8A076AB1bae73686EeCF740C679b726aa5999fc" # Important! Must be associated with ownerPrivateKey.
     gasPrice = 3000000000 # Wei.
     gasLimit = 7000000
@@ -37,3 +37,8 @@
         name = "testuser"
         user = "testuser"
         password = "password"
+
+[stripe]
+    [stripe.dev]
+        publishableKey = "pk_test_0PO4bIauBnjhx8HPgWaUZYLZ"
+        secretKey = "sk_test_53M1i3brUtdjDriVM368LBXs"

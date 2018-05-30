@@ -1,0 +1,46 @@
+{{ define "body" }}
+<script src="https://checkout.stripe.com/checkout.js"></script>
+
+<button id="customButton">Purchase</button>
+
+<script>
+    var handler = StripeCheckout.configure({
+        key: '{{ .key }}',
+        image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+        locale: 'auto',
+        token: function(token) {
+            console.log({ token });
+            fetch("http://0.0.0.0:8080/api/v1/stripe/request", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    token: token.id,
+                    email: token.email,
+                    amount: +{{ .amount }},
+                    ethAddress: "{{ .ethAddress }}"
+                }),
+            })
+            .then(res => res.json())
+            .then(res => console.log(res))
+            .catch(err => console.log('error: ', err))
+        }
+    });
+
+    document.getElementById('customButton').addEventListener('click', function(e) {
+        // Open Checkout with further options:
+        handler.open({
+            description: '{{ .description }}',
+            amount: +'{{ .amount }}'
+        });
+        e.preventDefault();
+    });
+
+    // Close Checkout on page navigation:
+    window.addEventListener('popstate', function() {
+        handler.close();
+    });
+</script>
+{{ end }}

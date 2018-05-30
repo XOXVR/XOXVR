@@ -8,3 +8,8 @@
         name = "prodDB"
         user = "prodUSER"
         password = "prodPassword"
+
+[stripe]
+    [stripe.prod]
+        publishableKey = "pk_test_0PO4bIauBnjhx8HPgWaUZYLZ"
+        secretKey = "sk_test_53M1i3brUtdjDriVM368LBXs"
