@@ -39,7 +39,7 @@ contract('Crowdsale', function ([owner, ...accounts]) {
 
   beforeEach(async function () {
     this.startPreICO = latestTime() + duration.weeks(1);
-    this.endPreICO = this.startPreICO + duration.days(28);
+    this.endPreICO = this.startPreICO + duration.days(21);
     this.startICO = this.endPreICO + duration.seconds(1);
     this.endICO = this.startICO + duration.days(28);
     this.startPostICO = this.endICO + duration.seconds(1);
@@ -78,8 +78,8 @@ contract('Crowdsale', function ([owner, ...accounts]) {
       const preICO = await this.crowdsale.preICO();
       preICO[Stage.remainderTokens].should.be.bignumber.equal(ether(6E6));
       preICO[Stage.minInvestment].should.be.bignumber.equal(ether(1));
-      preICO[Stage.bonusLessTen].should.be.bignumber.equal(140);
-      preICO[Stage.bonusMoreTen].should.be.bignumber.equal(160);
+      preICO[Stage.bonusLessTen].should.be.bignumber.equal(40);
+      preICO[Stage.bonusMoreTen].should.be.bignumber.equal(60);
       preICO[Stage.start].should.be.bignumber.equal(this.startPreICO);
       preICO[Stage.end].should.be.bignumber.equal(this.endPreICO);
       preICO[Stage.id].should.be.bignumber.equal(0);
@@ -90,7 +90,7 @@ contract('Crowdsale', function ([owner, ...accounts]) {
       ICO[Stage.remainderTokens].should.be.bignumber.equal(ether(54E6));
       ICO[Stage.minInvestment].should.be.bignumber.equal(ether(0.5));
       ICO[Stage.bonusLessTen].should.be.bignumber.equal(0);
-      ICO[Stage.bonusMoreTen].should.be.bignumber.equal(140);
+      ICO[Stage.bonusMoreTen].should.be.bignumber.equal(40);
       ICO[Stage.start].should.be.bignumber.equal(this.startICO);
       ICO[Stage.end].should.be.bignumber.equal(this.endICO);
       ICO[Stage.id].should.be.bignumber.equal(1);
@@ -188,7 +188,7 @@ contract('Crowdsale', function ([owner, ...accounts]) {
       balance.should.be.bignumber.equal(840E24);
     });
 
-    it('bonus programm', async function () {
+    it('bonus program', async function () {
       await increaseTimeTo(this.startPreICO);
       await this.crowdsale.saleTokens({ from: accounts[8], value: ether(5) });
       let balanceBuyerOne5ETH = await this.token.balanceOf(accounts[8]);
@@ -209,6 +209,17 @@ contract('Crowdsale', function ([owner, ...accounts]) {
       balanceSum2.div(1E18).toFixed(9).should.be.bignumber.equal(138787.436084733);
       const ICO = await this.crowdsale.ICO();
       ICO[Stage.remainderTokens].div(1E18).toNumber().toFixed(4).should.be.bignumber.equal(53861212.5639);
+    });
+
+    it('bonus program (remainder)', async function () {
+      await increaseTimeTo(this.startPreICO);
+      await this.crowdsale.setRate(ether(0.00001));
+      const { logs } = await this.crowdsale.saleTokens({ from: accounts[7], value: ether(8) });
+      const event = logs.find(e => e.event === 'TransferWei');
+      should.exist(event);
+      event.args.amount.should.be.bignumber.equal(ether(4.4));
+      const tokens = await this.token.balanceOf(accounts[7]);
+      tokens.should.be.bignumber.equal(6E24);
     });
   });
 });

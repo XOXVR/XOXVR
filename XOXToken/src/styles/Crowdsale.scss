@@ -1,0 +1,39 @@
+.funcLabel {
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.funcRow {
+  margin-top: 10px;
+}
+
+.funcButton {
+  width: 250px;
+  font-size: 15px;
+  background: #009ac0;
+  color: white;
+  border-radius: 3px;
+  border: none;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+.funcButton:hover {
+  width: 250px;
+  background: #00819e;
+  color: white;
+  border-radius: 3px;
+  border: none;
+  cursor: pointer;
+}
+
+.funcButton:disabled {
+  color: rgb(0, 0, 0);
+  border-radius: 3px;
+  background-color: #a3dcec;
+}
+
+.showBTCWallet {
+  border: 1px solid black;
+  padding: 8px 0;
+}
