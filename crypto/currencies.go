@@ -7,11 +7,11 @@ import (
 	"io"
 	"bytes"
 	"encoding/gob"
+	"sync"
 
 	uErr "xox_tokens/errors"
 	"xox_tokens/types"
 	"xox_tokens/constants"
-	"sync"
 )
 
 type Rates struct {

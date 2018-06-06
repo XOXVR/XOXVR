@@ -4,6 +4,7 @@
 [server]
     gRPCPort = 9092
     restPort = 9091
+    natsPort = 4222
 
 [crypto]
     # BTC

@@ -18,6 +18,7 @@ const (
 	ErrSelectFromDB       = "failed to select from DB"
 	ErrInsertToDB         = "failed to insert to DB"
 	ErrFindAddress        = "address not found"
+	ErrGenerateAddress    = "address not generate"
 	ErrConnectBTCService  = "btc service shutdown"
 	ErrConnectRateService = "rate service shutdown"
 

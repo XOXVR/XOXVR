@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package proto;
+
+message GetRatioReq {
+    string Address = 1;
+}
+
+message GetRatioResp {
+    string Type = 1;
+    string Value = 2;
+    string From = 3;
+    string TXHash = 4;
+}
+
+service BtcSupport {
+    rpc GetRatio(GetRatioReq) returns (GetRatioResp) {
+    }
+}

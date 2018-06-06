@@ -1,7 +1,7 @@
 package eth
 
 import (
-	"fmt"
+_	"fmt"
 	"log"
 	"errors"
 	"math/big"
@@ -106,7 +106,7 @@ func Refund() error {
 		}
 	}
 
-	log.Println("Refund complete")
+	log.Println("Refund complete") // TODO: Delete this line
 	return nil
 }
 
@@ -117,14 +117,53 @@ func SetRate(rate *big.Int) error {
 		return err
 	}
 
-	_, err = getReceipt(tx, true)
+	st, err := getReceipt(tx, true)
+	if err != nil {
+		uErr.Fatal(err)
+		return err
+	} else if st.Status != types.ReceiptStatusSuccessful {
+		err = errors.New("Transaction failed")
+		uErr.Fatal(err)
+		return err
+	}
+	log.Println("New rate: " + rate.String())
+
+	return nil
+}
+
+func GetValueForBackend(value *big.Int, address common.Address) error {
+	tx, err := session.GetValueForBackend(value, address)
 	if err != nil {
 		uErr.Fatal(err)
 		return err
 	}
-	log.Println("tx complete")
+
+	st, err := getReceipt(tx, true)
+	if err != nil {
+		uErr.Fatal(err)
+		return err
+	} else if st.Status != types.ReceiptStatusSuccessful {
+		err = errors.New("Transaction failed")
+		uErr.Fatal(err)
+		return err
+	}
+	log.Println("Equivalent to ETH value sent: " + value.String())
 
 	return nil
+}
+
+func GetRate() (*big.Int, error){
+	return session.Rate()
+}
+
+func IsPostICOStage() (bool, error) {
+	postICO, err := session.PostICO()
+	if err != nil {
+		uErr.Fatal(err)
+		return false, err
+	}
+
+	return time.Now().Unix() >= postICO.Start.Int64(), nil
 }
 
 func getGasLimit() (uint64, error) {
@@ -183,6 +222,7 @@ func createCrowdsaleSession(contractAddr string) (*gocontracts.CrowdsaleSession,
 
 	return session, nil
 }
+
 
 func getReceipt(tx *types.Transaction, useTimeout bool) (receipt *types.Receipt, err error) {
 	ctxB := context.Background()

@@ -3,8 +3,9 @@ package types
 type (
 	Buyer struct {
 		Id           int
-		EthAddr      string   `sql:"type:varchar(100),unique"`
-		BtcAddr      string   `sql:"type:varchar(100),unique"`
+		EthAddr      string   `sql:",unique,type:varchar(100)"`
+		BtcAddr      string   `sql:",unique,type:varchar(100)"`
+		BtcAddrWif	 string   `sql:",unique,type:varchar(100)"`
 		Transactions []*Transaction
 	}
 
@@ -12,15 +13,15 @@ type (
 		Id      int
 		BuyerId int
 		Buyer   *Buyer
-		From    string `sql:"type:varchar(100),notnull"`
+		From    string `sql:",notnull,type:varchar(100)"`
 		Amount  float64
-		Hash    string `sql:"type:varchar(100),unique"`
+		Hash    string `sql:",unique,type:varchar(100)"`
 	}
 
 	NotHandledTransaction struct {
 		Id     int
-		From   string `sql:"type:varchar(100),notnull"`
+		From   string `sql:",notnull,type:varchar(100)"`
 		Amount float64
-		Hash   string `sql:"type:varchar(100),unique"`
+		Hash   string `sql:",unique,type:varchar(100)"`
 	}
 )

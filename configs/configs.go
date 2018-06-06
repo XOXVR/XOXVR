@@ -1,8 +1,9 @@
 package configs
 
 import (
-	"github.com/BurntSushi/toml"
 	"math/big"
+
+	"github.com/BurntSushi/toml"
 )
 
 type Configs struct {
@@ -11,6 +12,7 @@ type Configs struct {
 	Crypto   Crypto
 	Services Services
 	DB       map[string]DB `toml:"database"`
+	Stripe   map[string]Stripe
 }
 
 type Common struct {
@@ -21,6 +23,7 @@ type Common struct {
 type Server struct {
 	GRPCPort uint `toml:"gRPCPort"`
 	RESTPort uint `toml:"restPort"`
+	NATSPort uint `toml:"natsPort"`
 }
 
 type Crypto struct {
@@ -51,6 +54,11 @@ type DB struct {
 	Name         string
 	User         string
 	Password     string
+}
+
+type Stripe struct {
+	PublishableKey 	 string
+	SecretKey      	 string
 }
 
 var configs Configs
