@@ -29,7 +29,7 @@ class Crowdsale extends Component {
               <Row>Multisig: {crowdsale.multisig}</Row>
               <Row>Address: {crowdsale.addressCrowdsale}</Row>
               <Row>Trusted wallet: {crowdsale.deputyAddress}</Row>
-              <Row>My wallet: {crowdsale.my_wallet}</Row>
+              <Row>My wallet: {crowdsale.myWallet}</Row>
               <Row>Tokens sold: {(crowdsale.salesTokens / crowdsale.decimals).toLocaleString()} XOX</Row>
               <Row>Token cost: {(crowdsale.rate / crowdsale.decimals).toFixed(7).toLocaleString()} ETH</Row>
               <Row>Softcap: {(crowdsale.softcap / crowdsale.decimals).toLocaleString()} XOX</Row>

@@ -29,7 +29,7 @@ class AdminPanel extends Component {
       crowdsale, setMultisig, setDeputyMultisig, refund, burn, setDate, preICO, postICO, setNewOwner
     } = this.props;
     const { startPreICO, startICO, startPostICO } = this.state;
-    if (crowdsale.owner === crowdsale.my_wallet || crowdsale.deputyAddress === crowdsale.my_wallet) {
+    if (crowdsale.owner === crowdsale.myWallet || crowdsale.deputyAddress === crowdsale.myWallet) {
       return (
         <Row style={{ marginTop: 15 }}><h3 style={{ textAlign: 'center' }}>Admin Panel</h3>
           <Row style={{ marginTop: 15 }}><h5>Setting start date</h5></Row>

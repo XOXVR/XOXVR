@@ -7,7 +7,7 @@ const initialState = {
   softcap: 0,
   owner: '',
   addressCrowdsale: '',
-  my_wallet: '',
+  myWallet: '',
   deputyAddress: ''
 };
 
