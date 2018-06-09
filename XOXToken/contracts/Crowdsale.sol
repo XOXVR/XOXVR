@@ -209,7 +209,7 @@ contract Crowdsale is Ownable {
     return true;
   }
 
-  function setRate(uint _rate) public onlyOwner returns(bool) {
+  function setRate(uint _rate) public onlyOwnerAndProxyOwner returns(bool) {
     require(_rate > 0);
 
     rate = _rate.div(10);
