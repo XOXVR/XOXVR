@@ -13,7 +13,7 @@ class Token extends Component {
           <Row>Name: {token.name}</Row>
           <Row>Symbol: {token.symbol}</Row>
           <Row>Decimals: {token.decimals.toLocaleString()}</Row>
-          <Row>TotalSupply: {(token.initialSupply / 1E18).toLocaleString()} {token.symbol}</Row>
+          <Row>Initial supply: {(token.initialSupply / 1E18).toLocaleString()} {token.symbol}</Row>
           <Row>Address: {token.tokenAddress}</Row>
           <Row>My tokens balance: {(token.myTokens / 1E18).toLocaleString()} {token.symbol}</Row>
         </Col>

@@ -12,6 +12,7 @@ contract XOXToken is BurnableToken, StandardToken {
   constructor(address _reserved) public {
     require(_reserved != address(0));
 
+    totalSupply = INITIAL_SUPPLY;
     balances[msg.sender] = 900E6 * (10 ** uint256(decimals));
     balances[_reserved] = 100E6 * (10 ** uint256(decimals));
     emit Transfer(0x0, msg.sender, balances[msg.sender]);

@@ -11,6 +11,8 @@ import getPostICO from './getPostICO';
 import getCrowdsaleInfo from './getCrowdsaleInfo';
 import getTokenInfo from './getTokenInfo';
 import getBTCAddress from './getBTCWallet';
+import getStatistics from './getStatistics';
+
 
 const regularExpression = /^([0-9]+[.])?[0-9]+$/;
 
@@ -136,6 +138,7 @@ function* sagas() {
   yield takeLatest('SET_DATE', setDate);
   yield takeLatest('NEW_WALLET', getBTCAddress);
   yield takeLatest('NEW_OWNER', changeOwner);
+  yield takeLatest('STATISTICS', getStatistics);
 }
 
 export default sagas;

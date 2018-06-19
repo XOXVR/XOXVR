@@ -107,6 +107,7 @@ contract Crowdsale is Ownable {
     Stage storage stageICO = getStage();
     require(stageICO.id != 2);
     require(msg.value >= stageICO.minInvestment);
+    require(stageICO.remainderTokens > 0);
 
     uint amountWei = msg.value;
     uint tokensValue = calculateTokens(amountWei);
@@ -160,7 +161,7 @@ contract Crowdsale is Ownable {
     uint remainderTokens = preICO.remainderTokens.add(ICO.remainderTokens);
     preICO.remainderTokens = 0;
     ICO.remainderTokens = 0;
-    token.burn(this, remainderTokens);
+    token.burn(remainderTokens);
     return true;
   }
 

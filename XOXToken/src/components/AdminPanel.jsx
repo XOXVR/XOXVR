@@ -8,6 +8,7 @@ import { setMultisig, setDeputyMultisig } from '../redux/actions/setMultisig';
 import refund from '../redux/actions/refund';
 import setDate from '../redux/actions/setDate';
 import burn from '../redux/actions/burn';
+import { getStatistics } from '../redux/actions/getStatistics';
 import setNewOwner from '../redux/actions/changeOwner';
 import '../styles/Crowdsale.scss';
 
@@ -20,13 +21,14 @@ class AdminPanel extends Component {
     startPreICO: 0,
     startICO: 0,
     startPostICO: 0,
-    owner: ''
+    owner: '',
+    countPagination: 0
   }
 
   render() {
     const nowDate = moment().unix();
     const {
-      crowdsale, setMultisig, setDeputyMultisig, refund, burn, setDate, preICO, postICO, setNewOwner
+      crowdsale, setMultisig, setDeputyMultisig, refund, burn, setDate, preICO, postICO, setNewOwner, getStatistics, statistics
     } = this.props;
     const { startPreICO, startICO, startPostICO } = this.state;
     if (crowdsale.owner === crowdsale.myWallet || crowdsale.deputyAddress === crowdsale.myWallet) {
@@ -109,6 +111,33 @@ class AdminPanel extends Component {
             <Button style={{ marginRight: 50 }} className="funcButton" disabled={nowDate < postICO.start} color="info" onClick={() => refund()}>Refund</Button>
             <Button className="funcButton" disabled={nowDate < postICO.start} color="info" onClick={() => burn()}>Burn tokens</Button>
           </Col>
+
+          <Row style={{ marginTop: 15 }}><h5>Statistics</h5></Row>
+          <Row className="funcRow" style={{ marginBottom: 15 }}>
+            <Col md={{ size: 6 }}>
+              <Button
+                className="funcButton"
+                color="info"
+                onClick={() => {
+                this.setState({ countPagination: this.state.countPagination + 50 });
+                getStatistics(this.state.countPagination);
+                }}>Get statistics +{this.state.countPagination} people
+              </Button>
+              <div className="statistics" style={{ display: 'flex', flexWrap: 'nowrap', width: '100%' }}>
+                <div className="invest" style={{ width: '50%' }}>Investors</div>
+                <div className="valInvest" style={{ width: '50%' }}>{Object.keys(statistics.objInvest).length || 'No investors yet'}</div>
+              </div>
+              {Object.entries(statistics.objInvest).map(([key, val]) => {
+                return (
+                  <div className="statistics" key={key} style={{ display: 'flex', flexWrap: 'nowrap', width: '100%' }}>
+                    <div className="invest" style={{ width: '50%' }}>{key}</div>
+                    <div className="valInvest" style={{ width: '50%' }}>{val / 1E18}</div>
+                  </div>
+                );
+              })}
+            </Col>
+          </Row>
+
         </Row>
       );
     }
@@ -121,6 +150,7 @@ export default connect(
     crowdsale: state.crowdsale,
     preICO: state.preICO,
     postICO: state.postICO,
+    statistics: state.statistics
   }),
   dispatch => bindActionCreators({
     setMultisig,
@@ -128,6 +158,7 @@ export default connect(
     refund,
     burn,
     setDate,
-    setNewOwner
+    setNewOwner,
+    getStatistics
   }, dispatch)
 )(AdminPanel);

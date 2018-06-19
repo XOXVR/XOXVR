@@ -7,6 +7,7 @@ import postICO from './postICO';
 import crowdsale from './crowdsaleData';
 import token from './tokenInfo';
 import btcWallet from './btcWallet';
+import statistics from './statistics';
 
 export default combineReducers({
   routing: routerReducer,
@@ -15,5 +16,6 @@ export default combineReducers({
   postICO,
   crowdsale,
   token,
-  btcWallet
+  btcWallet,
+  statistics
 });

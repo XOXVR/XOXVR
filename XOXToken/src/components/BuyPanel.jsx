@@ -38,7 +38,7 @@ class BuyPanel extends Component {
           if (e.target.value.indexOf(',') !== -1) return alert('Need to put a point!');
           this.setState({ cents: e.target.value * 100 });
         }}
-        placeholder="Fiat value"
+        placeholder="Fiat value (USD)"
         style={{ width: 100, marginRight: 10 }}
         disabled={nowDate < postICO.start}
       />
@@ -55,7 +55,7 @@ class BuyPanel extends Component {
       <Row style={{ marginTop: 15, textAlign: 'left' }}><h3 style={{ textAlign: 'center' }}>Buy Panel</h3>
         <Row style={{ marginTop: 5, fontWeight: 'bold' }}><p>Fiat</p></Row>
         <Row className="funcRow" style={{ marginBottom: 15 }}>
-          <select defaultValue='fiat' size="3" disabled={nowDate < postICO.start} onChange={e => this.setState({ fiatSelect: e.target.value })}>
+          <select defaultValue="fiat" size="3" disabled={nowDate < postICO.start} onChange={e => this.setState({ fiatSelect: e.target.value })}>
             <option disabled>Select tokens or fiat</option>
             <option value="fiat">Fiat</option>
             <option value="tokens">Tokens</option>

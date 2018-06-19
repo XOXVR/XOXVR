@@ -10,7 +10,7 @@ import { middleware } from '../../router/Navigation';
 const persistConfig = {
   key: 'root',
   storage,
-  blacklist: []
+  blacklist: ['statistics']
 };
 
 const sagaMiddleware = createSagaMiddleware();

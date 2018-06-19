@@ -37,3 +37,17 @@
   border: 1px solid black;
   padding: 8px 0;
 }
+
+.statistics {
+  border: 1px solid black;
+}
+.invest {
+  border-right: 1px solid black;
+  text-align: center; 
+}
+.valInvest {
+  text-align: center; 
+}
+.statistics, .invest, .valInvest {
+  padding: 2px 0;
+}
