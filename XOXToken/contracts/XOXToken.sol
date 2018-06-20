@@ -4,7 +4,7 @@ import './BurnableToken.sol';
 import './StandardToken.sol';
 
 contract XOXToken is BurnableToken, StandardToken {
-  string public constant name = "XOX Token";
+  string public constant name = "XOX";
   string public constant symbol = "XOX";
   uint32 public constant decimals = 18;
   uint256 public constant INITIAL_SUPPLY = 1000E6 * (10 ** uint256(decimals));

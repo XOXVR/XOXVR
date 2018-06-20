@@ -47,7 +47,6 @@ contract Crowdsale is Ownable {
 
   constructor(uint _startPreICO, uint _startICO, uint _startPostICO, address _reserved) public {
     require(
-      _startPreICO > now &&
       _startICO > _startPreICO.add(PREICO_DURATION) &&
       _startPostICO > _startICO.add(ICO_DURATION)
     );
@@ -182,7 +181,6 @@ contract Crowdsale is Ownable {
   function setDate(uint _startPreICO, uint _startICO, uint _startPostICO) public onlyOwner returns(bool) {
     require(now < preICO.start);
     require(
-      _startPreICO > now &&
       _startICO > _startPreICO.add(PREICO_DURATION) &&
       _startPostICO > _startICO.add(ICO_DURATION)
     );
